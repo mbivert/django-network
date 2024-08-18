@@ -56,6 +56,8 @@
 				<a href="{% url 'network:profile'  user.id  %}">Profile</a>
 				<a href="{% url 'network:following' %}">Following</a>
 				<a href="{% url 'network:logout'    %}">Logout</a>
+			{% else %}
+				<a href="{% url 'network:login'    %}">Login</a>
 			{% endif %}
 		</nav>
 	{% if form.non_field_errors %}<div id="error">{{ form.non_field_errors }}</div>{% endif %}

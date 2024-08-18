@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.views     import generic
-from .models          import Post
+from .models          import Post, User
 from django.http      import HttpResponseRedirect
 from django.urls      import reverse
 from django.utils     import timezone
@@ -58,6 +58,12 @@ class ProfileView(generic.ListView):
 	template_name       = "network/posts.html"
 	context_object_name = "posts"
 
+	def is_profile(self):
+		return True
+
+	def get_user(self):
+		return get_object_or_404(User, pk=self.kwargs["pk"])
+
 	def get_queryset(self):
 		return Post.objects.filter(owner=self.kwargs["pk"]).order_by("-cdate")
 
@@ -85,5 +91,33 @@ def delete(request, pk):
 		return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 	p.delete()
+
+	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+def like(request, pk):
+	if not request.user.is_authenticated:
+		print("not authenticated") # TODO
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+	p  = get_object_or_404(Post, pk=pk)
+
+	if p.likers.filter(pk=request.user.id):
+		p.likers.remove(request.user)
+	else:
+		p.likers.add(request.user)
+
+	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+def follow(request, pk):
+	if not request.user.is_authenticated:
+		print("not authenticated") # TODO
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+	u = get_object_or_404(User, pk=pk)
+
+	if request.user.follows.filter(pk=u.id):
+		request.user.follows.remove(u)
+	else:
+		request.user.follows.add(u)
 
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

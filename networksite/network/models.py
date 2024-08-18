@@ -16,6 +16,10 @@ class Post(models.Model):
 
 	likers  = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="likes")
 
+	@property
+	def nlikes(self):
+		return len(self.likers.all())
+
 	def save(self, *args, **kwargs):
 		if not self.cdate:
 			d = timezone.now()
@@ -25,4 +29,12 @@ class Post(models.Model):
 
 class User(AbstractUser):
 	# symmetrical=True (default), <=> systematic "follow-back"
-	follows = models.ManyToManyField("self", symmetrical=False)
+	follows = models.ManyToManyField("self", symmetrical=False, related_name="followers")
+
+	@property
+	def nfollows(self):
+		return len(self.follows.all())
+
+	@property
+	def nfollowers(self):
+		return len(self.followers.all())

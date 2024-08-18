@@ -1,7 +1,17 @@
 {% extends 'network/main.html' %}
 
 {% block content %}
+{# TODO: fix title #}
 <h2>All posts</h2>
+{% if view.is_profile %}
+	<div>
+		<span>n° followers: {{ view.get_user.nfollowers }}</span>
+		<span>n° followings: {{ view.get_user.nfollows }}</span>
+		{% if user.is_authenticated %}
+			<a href="{% url 'network:follow' view.get_user.id %}">follow/unfollow</span>
+		{% endif %}
+	</div>
+{% endif %}
 {% if user.is_authenticated %}
 	<form action="{% url 'network:add' %}" method="POST" class="add-post-form">
 		{% csrf_token %}
@@ -10,7 +20,7 @@
 		<input type="text" name="name" />
 		<br />
 		<textarea name="content" class="content"></textarea>
-		<button type="submit" class="submit-post">Submit</button>
+		<button type="submit" class="submit-post">New post</button>
 	</form>
 {% endif %}
 {% if posts %}
@@ -40,6 +50,15 @@
 				{% endif %}
 			</div>
 			<pre class="content">{{ post.content }}</pre>
+			<div>
+				{% if user.is_authenticated %}
+					<a href="{% url 'network:like' post.id %}">
+						❤️
+					</a> {{ post.nlikes }}
+				{% else %}
+					❤️ {{ post.nlikes }}
+				{% endif %}
+			</div>
 		</div>
 		{% endfor %}
 	</div>

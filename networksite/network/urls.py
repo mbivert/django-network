@@ -12,6 +12,8 @@ urlpatterns = [
 	path('profile/<int:pk>/', views.ProfileView.as_view(),   name='profile'),
 	path('edit/<int:pk>/',    views.EditView.as_view(),      name='edit'),
 	path('delete/<int:pk>/',  views.delete,                  name='delete'),
+	path('like/<int:pk>/',    views.like,                    name='like'),
+	path('follow/<int:pk>/',  views.follow,                  name='follow'),
 	# lazzy
     path("accounts/",      include("django.contrib.auth.urls")),
 ]
