@@ -1,3 +1,89 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
+from django.views     import generic
+from .models          import Post
+from django.http      import HttpResponseRedirect
+from django.urls      import reverse
+from django.utils     import timezone
 
-# Create your views here.
+class AllPostsView(generic.ListView):
+	template_name       = "network/posts.html"
+	context_object_name = "posts"
+
+	def get_queryset(self):
+		return Post.objects.order_by("-cdate")
+
+class EditView(generic.DetailView):
+	model = Post
+	template_name = "network/edit.html"
+
+	# TODO: factor with delete
+	def post(self, *args, **kwargs):
+		if not self.request.user.is_authenticated:
+			return HttpResponseRedirect(reverse("network:login"))
+
+		# Could also have been a hidden field
+		pk      = kwargs['pk']
+		name    = self.request.POST["name"]
+		content = self.request.POST["content"]
+		owner   = self.request.user
+
+		p  = get_object_or_404(Post, pk=pk)
+
+		if p.owner.id != owner.id:
+			print("can't delete that!")
+			return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+		p.name    = name
+		p.content = content
+		p.mdate   = timezone.now()
+		p.save()
+		return HttpResponseRedirect(reverse("network:allposts"))
+
+class FollowingView(generic.ListView):
+	template_name       = "network/posts.html"
+	context_object_name = "posts"
+
+	def get(self, *args, **kwargs):
+		if not self.request.user.is_authenticated:
+			return HttpResponseRedirect(reverse("network:allposts"))
+		return super(FollowingView, self).get(*args, **kwargs)
+
+	# TODO: tests
+	def get_queryset(self):
+		uids = [ u.id for u in self.request.user.follows.all() ]
+		print(uids)
+		return Post.objects.filter(owner__in=uids).order_by("-cdate")
+
+class ProfileView(generic.ListView):
+	template_name       = "network/posts.html"
+	context_object_name = "posts"
+
+	def get_queryset(self):
+		return Post.objects.filter(owner=self.kwargs["pk"]).order_by("-cdate")
+
+# XXX Maybe there's a default view for those?
+def addpost(request):
+	name    = request.POST["name"]
+	content = request.POST["content"]
+	next    = request.POST["next"]
+	owner   = request.user
+
+	p = Post(name=name, owner=owner, content=content)
+	p.save()
+	return HttpResponseRedirect(next)
+
+# TODO: redirection is kinda meh (broken if referer disabled by browser), error handling
+def delete(request, pk):
+	if not request.user.is_authenticated:
+		print("not authenticated") # TODO
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+	p  = get_object_or_404(Post, pk=pk)
+
+	if p.owner.id != request.user.id:
+		print("can't delete that!")
+		return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+	p.delete()
+
+	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

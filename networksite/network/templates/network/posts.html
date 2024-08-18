@@ -1,0 +1,49 @@
+{% extends 'network/main.html' %}
+
+{% block content %}
+<h2>All posts</h2>
+{% if user.is_authenticated %}
+	<form action="{% url 'network:add' %}" method="POST" class="add-post-form">
+		{% csrf_token %}
+		<input type="hidden" name="next" value="{{ request.path }}">
+		<label for="name">Name:</label>
+		<input type="text" name="name" />
+		<br />
+		<textarea name="content" class="content"></textarea>
+		<button type="submit" class="submit-post">Submit</button>
+	</form>
+{% endif %}
+{% if posts %}
+	<div class="posts">
+		{% for post in posts %}
+		<div class="post">
+			<div>
+				<span class="name">{{ post.name }}</span>
+				{% if user.is_authenticated %}
+					{% if post.owner.id == user.id %}
+					<a href="{% url 'network:edit'   post.id %}">🖉</a>
+					<a href="{% url 'network:delete' post.id %}">🗑</a>
+					{% endif %}
+				{% endif %}
+			</div>
+			<div>
+				By <span class="author">
+					<a href="{% url 'network:profile' post.owner.id %}">
+						{{ post.owner }}
+					</a>
+				</span> -
+				<span class="cdate">{{ post.cdate }}</span>
+				{% if post.mdate != post.cdate %}
+				<span>
+					Modified: <span class="mdate">{{ post.mdate }}</span>
+				</span>
+				{% endif %}
+			</div>
+			<pre class="content">{{ post.content }}</pre>
+		</div>
+		{% endfor %}
+	</div>
+{% else %}
+	<p> No posts yet! </p>
+{% endif %}
+{% endblock %}

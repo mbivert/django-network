@@ -1,0 +1,19 @@
+{% extends 'network/main.html' %}
+
+{% block content %}
+{% if not user.is_authenticated %}
+	<p> Please, <a href="{% url 'network:login' %}">login</a> </p>
+{% elif object.owner.id != user.id %}
+	<p> Not yours. </p>
+{% else %}
+	<h2>Editing {{ object.name }}</h2>
+	<form action="{% url 'network:edit' object.pk %}" method="POST" class="add-post-form">
+		{% csrf_token %}
+		<label for="name">Name:</label>
+		<input type="text" name="name" value="{{ object.name }}" />
+		<br />
+		<textarea name="content" class="content">{{ object.content }}</textarea>
+		<button type="submit" class="submit-post">Submit</button>
+	</form>
+{% endif %}
+{% endblock %}
