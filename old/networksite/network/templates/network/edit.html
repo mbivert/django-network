@@ -9,10 +9,7 @@
 	<h2>Editing {{ object.name }}</h2>
 	<form action="{% url 'network:edit' object.pk %}" method="POST" class="add-post-form">
 		{% csrf_token %}
-		<label for="name">Name:</label>
-		<input type="text" name="name" value="{{ object.name }}" />
-		<br />
-		<textarea name="content" class="content">{{ object.content }}</textarea>
+		{{ form }}
 		<button type="submit" class="submit-post">Submit</button>
 	</form>
 {% endif %}

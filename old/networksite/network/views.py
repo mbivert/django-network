@@ -1,20 +1,25 @@
 from django.shortcuts import get_object_or_404
 from django.views     import generic
 from .models          import Post, User
+from .forms           import PostForm
 from django.http      import HttpResponseRedirect
 from django.urls      import reverse
 from django.utils     import timezone
 
 class AllPostsView(generic.ListView):
 	template_name       = "network/posts.html"
-	context_object_name = "posts"
+	context_object_name = "params"
 
 	def get_queryset(self):
-		return Post.objects.order_by("-cdate")
+		return {
+			"posts" : Post.objects.order_by("-cdate"),
+			"form"  : PostForm(initial={'next' : self.request.path}, auto_id=False),
+		}
 
-class EditView(generic.DetailView):
+class EditView(generic.edit.FormMixin, generic.DetailView):
 	model = Post
 	template_name = "network/edit.html"
+	form_class = PostForm(initial={'next' : self.request.path}, auto_id=False)
 
 	# TODO: factor with delete
 	def post(self, *args, **kwargs):
@@ -23,8 +28,18 @@ class EditView(generic.DetailView):
 
 		# Could also have been a hidden field
 		pk      = kwargs['pk']
-		name    = self.request.POST["name"]
-		content = self.request.POST["content"]
+		form = PostForm(self.request.POST)
+
+		# next should be okay still?
+		if not form.is_valid():
+			print("form issue?")
+			return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+		name    = form.cleaned_data.name
+		content = form.cleaned_data.content
+#		name    = self.request.POST["name"]
+#		content = self.request.POST["content"]
+
 		owner   = self.request.user
 
 		p  = get_object_or_404(Post, pk=pk)

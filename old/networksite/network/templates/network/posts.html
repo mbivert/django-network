@@ -15,17 +15,13 @@
 {% if user.is_authenticated %}
 	<form action="{% url 'network:add' %}" method="POST" class="add-post-form">
 		{% csrf_token %}
-		<input type="hidden" name="next" value="{{ request.path }}">
-		<label for="name">Name:</label>
-		<input type="text" name="name" />
-		<br />
-		<textarea name="content" class="content"></textarea>
+		{{ params.form }}
 		<button type="submit" class="submit-post">New post</button>
 	</form>
 {% endif %}
-{% if posts %}
+{% if params.posts %}
 	<div class="posts">
-		{% for post in posts %}
+		{% for post in params.posts %}
 		<div class="post">
 			<div>
 				<span class="name">{{ post.name }}</span>
