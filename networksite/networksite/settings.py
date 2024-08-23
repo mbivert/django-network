@@ -100,9 +100,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL     = "network.User"
-LOGIN_REDIRECT_URL  = "network:home"
-LOGOUT_REDIRECT_URL = "network:home"
+AUTH_USER_MODEL      = "network.User"
+LOGIN_REDIRECT_URL   = "network:home"
+LOGOUT_REDIRECT_URL  = "network:home"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/

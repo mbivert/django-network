@@ -1,0 +1,13 @@
+{% extends "network/main.html" %}
+
+{% block content %}
+
+<p> Do you really want to sign-out?</p>
+
+<form method="post" action="{% url 'network:signout' %}">
+	{% csrf_token %}
+	<input type="hidden" name="next" value="{{ next }}">
+	<input type="submit" value="sign-out" onclick="return confirm('Are you sure?')">
+</form>
+
+{% endblock %}

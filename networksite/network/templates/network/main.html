@@ -44,6 +44,9 @@
 				font-weight      : bold;
 				list-style-type  : none;
 			}
+			.helptext {
+				font-size        : x-small;
+			}
 		</style
 	</head>
 	<body>
@@ -52,8 +55,10 @@
 			<a href="{% url 'network:home' %}">All posts</a>
 			{% if user.is_authenticated %}
 				<a href="{% url 'network:logout'    %}">Logout</a>
+				<a href="{% url 'network:signout'   %}">Sign-out</a>
 			{% else %}
 				<a href="{% url 'network:login'    %}">Login</a>
+				<a href="{% url 'network:signin'   %}">Sign-in</a>
 			{% endif %}
 		</nav>
 	{% block content %}

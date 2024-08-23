@@ -1,0 +1,12 @@
+{% extends "network/main.html" %}
+
+{% block content %}
+
+<form method="post" action="{% url 'network:signin' %}">
+	{% csrf_token %}
+	{{ form.as_p }}
+	<input type="hidden" name="next" value="{{ next }}">
+	<input type="submit" value="sign-in">
+</form>
+
+{% endblock %}
