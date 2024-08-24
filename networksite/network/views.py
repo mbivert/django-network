@@ -7,6 +7,7 @@ from django.utils.decorators        import method_decorator
 from django.views                   import generic
 from django.http                    import JsonResponse, HttpResponseRedirect
 from .models                        import Post
+from django.utils                   import timezone
 
 def signin(request):
 	form = SigninForm()
@@ -91,3 +92,15 @@ def delete(request, pk):
 	# TODO: add err/msg as GET parameter & process (also, untested)
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
+
+@login_required(login_url='network:login')
+def edit(request, pk):
+	if request.method == 'POST':
+		print(request, request.POST)
+		p         = get_object_or_404(Post, pk=pk)
+		p.content = request.body.decode('utf-8')
+		p.mdate   = timezone.now()
+		p.save()
+
+	# XXX, now this one is really broken if there's no JS.
+	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

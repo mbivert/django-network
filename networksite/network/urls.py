@@ -9,7 +9,7 @@ urlpatterns = [
 	path('',                 views.HomeView.as_view(), name='home'),
 
 	path('delete/<int:pk>/', views.delete,             name='delete'),
-#	path('new/',             views.new,                name='new'),
+	path('edit/<int:pk>/',   views.edit,               name='edit'),
 	path('new/',             views.HomeView.as_view(), name='new'),
 
 	path('login/', LoginView.as_view(

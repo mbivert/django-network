@@ -3,6 +3,7 @@
 		<span class="name">{{ post.name }}</span>
 		{% if user.is_authenticated and user.pk == post.owner.id %}
 			<a class='delete-link' href="{% url 'network:delete' post.id %}">🗑</a>
+			<a class='edit-link'   href="{% url 'network:edit'   post.id %}">🖉</a>
 		{% endif %}
 	</div>
 	<div>
