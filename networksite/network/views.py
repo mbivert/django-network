@@ -6,8 +6,8 @@ from django.contrib.auth.decorators import login_required
 from django.utils.decorators        import method_decorator
 from django.views                   import generic
 from django.http                    import JsonResponse, HttpResponseRedirect, HttpResponse
-from .models                        import Post
-from .utils                         import trydeletepost
+from .models                        import Post, User
+from .utils                         import trydeletepost, getfollowingposts
 from django.utils                   import timezone
 
 def signin(request):
@@ -67,6 +67,24 @@ class HomeView(generic.ListView):
 			"posts" : self.get_posts(),
 		}
 
+class FollowingView(HomeView):
+	def get_posts(self):
+		return getfollowingposts(self.request.user)
+
+class ProfileView(HomeView):
+	is_profile = True
+
+	# NOTE: this required a connected users; the only place where
+	# this is called is guarded by a {% if user.is_authenticated %}
+	def isfollow(self):
+		return self.request.user.isfollow(self.kwargs["pk"])
+
+	def get_user(self):
+		return get_object_or_404(User, pk=self.kwargs["pk"])
+
+	def get_posts(self):
+		return Post.objects.filter(owner=self.kwargs["pk"]).order_by("-cdate")
+
 @login_required(login_url='network:login')
 def delete(request, pk):
 	p  = get_object_or_404(Post, pk=pk)
@@ -110,6 +128,25 @@ def like(request, pk):
 
 	if request.method == 'POST':
 		return HttpResponse(p.nlikes)
+
+	# Works without JS
+	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required(login_url='network:login')
+def follow(request, pk):
+	u = get_object_or_404(User, pk=pk)
+
+	# Can't follow oneself
+	if request.user.pk != pk:
+		action = "follow"
+		if request.user.follows.filter(pk=u.id):
+			request.user.follows.remove(u)
+		else:
+			request.user.follows.add(u)
+			action = "unfollow"
+
+		if request.method == 'POST':
+			return JsonResponse({'action' : action, 'count' : u.nfollowers})
 
 	# Works without JS
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

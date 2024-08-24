@@ -77,6 +77,9 @@ class User(AbstractBaseUser):
 	def nfollowers(self):
 		return len(self.followers.all())
 
+	def isfollow(self, pk):
+		return len(self.follows.filter(pk=pk)) > 0
+
 class Post(models.Model):
 	owner   = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 	name    = models.CharField(max_length=120)

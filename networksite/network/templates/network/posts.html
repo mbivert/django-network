@@ -2,6 +2,24 @@
 
 {% block content %}
 
+{% if view.is_profile %}
+	<div>
+		<span>{{ view.get_user.nfollows }} Followings</span>
+		<span>{{ view.get_user.nfollowers }} Followers</span>
+		{% if user.is_authenticated %}
+			{% if user.pk != view.get_user.pk %}
+			<a class="follow-link" href="{% url 'network:follow' view.get_user.pk %}">
+				{% if view.isfollow %}
+					unfollow
+				{% else %}
+					follow
+				{% endif %}
+			</a>
+			{% endif %}
+		{% endif %}
+	</div>
+{% endif %}
+
 {% if user.is_authenticated %}
 	<form action="{% url 'network:new' %}" method="POST" class="new-form">
 		{% csrf_token %}

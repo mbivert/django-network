@@ -7,7 +7,11 @@
 		{% endif %}
 	</div>
 	<div>
-		By <span class="author">{{ post.owner }}</span> -
+		By <span class="author">
+			<a href="{% url 'network:profile' post.owner.id %}">
+				{{ post.owner }}
+			</a>
+		</span> -
 		<span class="cdate">{{ post.cdate }}</span>
 		{% if post.mdate != post.cdate %}
 		<span>

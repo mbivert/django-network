@@ -23,6 +23,6 @@ def trydeletepost(pk, uid):
 		return True
 	return False
 
-def getfollowsposts(user):
+def getfollowingposts(user):
 	uids = [ u.id for u in user.follows.all() ]
 	return Post.objects.filter(owner__in=uids).order_by("-cdate")

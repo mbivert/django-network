@@ -26,8 +26,8 @@
 				margin-right      : 1em;
 			}
 			.new-form .content, .content {
-				width  : 100%;
-				height : 5em;
+				width      : 100%;
+				min-height : 5em;
 			}
 			.login-form {
 				margin-top : 2em;
@@ -64,6 +64,7 @@
 			<span class="sitename">Network</span>
 			<a href="{% url 'network:home' %}">All posts</a>
 			{% if user.is_authenticated %}
+				<a href="{% url 'network:following' %}">Following</a>
 				<a href="{% url 'network:logout'    %}">Logout</a>
 				<a href="{% url 'network:signout'   %}">Sign-out</a>
 			{% else %}
@@ -96,27 +97,28 @@
 		const csrftoken = getCookie('csrftoken');
 
 		async function handleDelete(p) {
-			if (confirm("Are you sure you want to delete this post?")) {
-				let r = await fetch(p.href, {
-					method      : "POST",
-					headers     : {'X-CSRFToken': csrftoken},
-					credentials : "same-origin",
-				})
-				let err = "", msg = "";
+			if (!confirm("Are you sure you want to delete this post?"))
+				return;
 
-				if (!r.ok) err = "request failed!"
-				else try {
-					let x = await r.json()
-					err = x.err; msg = x.msg;
-				} catch(y) { err = y }
+			let r = await fetch(p.href, {
+				method      : "POST",
+				headers     : {'X-CSRFToken': csrftoken},
+				credentials : "same-origin",
+			})
+			let err = "", msg = "";
 
-				if (err != "") {
-					alert(err);
-					return;
-				}
-				alert(msg);
-				p.closest(".post").remove();
+			if (!r.ok) err = "request failed!"
+			else try {
+				let x = await r.json()
+				err = x.err; msg = x.msg;
+			} catch(y) { err = y }
+
+			if (err != "") {
+				alert(err);
+				return;
 			}
+			alert(msg);
+			p.closest(".post").remove();
 		}
 
 		async function handleEdit(p) {
@@ -130,7 +132,6 @@
 					body        : q.value,
 					credentials : "same-origin",
 				})
-				console.log(r)
 				let t = document.createElement("pre");
 				t.classList.add("content");
 				t.textContent = q.value;
@@ -151,10 +152,32 @@
 				headers     : {'X-CSRFToken'  : csrftoken},
 				credentials : "same-origin",
 			})
-			if (!r.ok) alert("can't like!");
+			if (!r.ok) alert("can't like/unlike!");
 			else r.text().then(function(n) {
 				p.nextElementSibling.textContent = n
 			})
+		}
+
+		async function handleFollow(p) {
+			let r = await fetch(p.href, {
+				method      : "POST",
+				headers     : {'X-CSRFToken'  : csrftoken},
+				credentials : "same-origin",
+			})
+			let err = "", action = "", count = -1;
+
+			if (!r.ok) err = "request failed!"
+			else try {
+				let x = await r.json()
+				action = x.action; count = x.count;
+			} catch(y) { err = y }
+
+			if (err != "") {
+				alert(err);
+				return;
+			}
+			p.textContent = action;
+			p.previousElementSibling.textContent = `${count} Followers`
 		}
 
 		document.addEventListener("click", function(e) {
@@ -169,6 +192,7 @@
 			if (p.classList.contains('delete-link')) w(handleDelete)
 			if (p.classList.contains('edit-link'))   w(handleEdit)
 			if (p.classList.contains('like-link'))   w(handleLike)
+			if (p.classList.contains('follow-link')) w(handleFollow)
 		})
 	});</script>
 </html>
