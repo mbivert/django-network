@@ -2,6 +2,16 @@
 
 {% block content %}
 
-<p>TODO</p>
-
+{% if user.is_authenticated %}
+	<form action="{% url 'network:new' %}" method="POST" class="add-post-form">
+		{% csrf_token %}
+		{{ params.form }}
+		<button type="submit" class="submit-post">Post</button>
+	</form>
+{% endif %}
+{% if params.posts %}
+	{% for post in params.posts %}
+		{% include "network/post.html" %}
+	{% endfor %}
+{% endif %}
 {% endblock %}

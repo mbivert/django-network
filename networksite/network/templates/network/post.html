@@ -1,0 +1,15 @@
+<div class="post">
+	<div>
+		<span class="name">{{ post.name }}</span>
+	</div>
+	<div>
+		By <span class="author">{{ post.owner }}</span> -
+		<span class="cdate">{{ post.cdate }}</span>
+		{% if post.mdate != post.cdate %}
+		<span>
+			Modified: <span class="mdate">{{ post.mdate }}</span>
+		</span>
+		{% endif %}
+	</div>
+	<pre class="content">{{ post.content }}</pre>
+</div>

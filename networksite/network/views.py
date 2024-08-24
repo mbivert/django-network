@@ -1,11 +1,10 @@
 from django.shortcuts               import render, redirect
 from django.contrib.auth            import login
-from .forms                         import SigninForm
+from .forms                         import SigninForm, PostForm
 from django.conf                    import settings
 from django.contrib.auth.decorators import login_required
-
-def home(request):
-	return render(request, "network/posts.html")
+from django.views                   import generic
+from .models                        import Post
 
 def signin(request):
 	form = SigninForm()
@@ -30,3 +29,13 @@ def signout(request):
 		return redirect(settings.LOGOUT_REDIRECT_URL)
 
 	return render(request, "network/signout.html")
+
+class HomeView(generic.ListView):
+	template_name       = "network/posts.html"
+	context_object_name = "params"
+
+	def get_queryset(self):
+		return {
+			"form"  : PostForm(initial={'next' : self.request.path}, auto_id=False),
+			"posts" : Post.objects.order_by("-cdate"),
+		}

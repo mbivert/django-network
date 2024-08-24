@@ -5,7 +5,8 @@ from django.contrib.auth.views import LoginView, LogoutView
 app_name = 'network'
 
 urlpatterns = [
-	path('',      views.home, name='home'),
+	path('',      views.HomeView.as_view(), name='home'),
+	path('new/',  views.HomeView.as_view(), name='new'), # TODO
 	path('login/', LoginView.as_view(
 			template_name='network/login.html',
 			redirect_authenticated_user=True,
