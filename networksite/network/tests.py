@@ -1,7 +1,7 @@
 # XPutall; Clear; python manage.py test -v 2 network
 from django.test import TestCase
 
-from .utils import maybecreateuser, maybecreatepost
+from .utils import maybecreateuser, maybecreatepost, getfollowsposts
 
 class FollowingTests(TestCase):
 	def test_following_users(self):
@@ -63,3 +63,31 @@ class LikingTests(TestCase):
 
 		likes = [ p.content for p in santa.likes.all().order_by("content") ]
 		self.assertSequenceEqual(likes, ["some random text"])
+
+class GetFollowsPostsTests(TestCase):
+	def test_getfollowsposts(self):
+		"""
+		Make sure we can retrieve posts from people we follow.
+		"""
+		mb     = maybecreateuser("mb",     "m@b.com",     "mbmbmbmbmb")
+		santa  = maybecreateuser("santa",  "san@ta.com",  "santasanta")
+		djengo = maybecreateuser("djengo", "dje@ngo.com", "djengowwww")
+
+		p0 = maybecreatepost("name0", mb,    "some random text")
+		p1 = maybecreatepost("name1", santa, "more random text")
+
+		mb.follows.add(santa)
+		mb.follows.add(djengo)
+		djengo.follows.add(mb)
+
+		# mb follows santa (1 post) djengo (0 posts)
+		ps = [p.content for p in getfollowsposts(mb)]
+		self.assertSequenceEqual(ps, ["more random text"])
+
+		# djengo follows mb (1 post)
+		ps = [p.content for p in getfollowsposts(djengo)]
+		self.assertSequenceEqual(ps, ["some random text"])
+
+		# santa follows no one
+		ps = [p.content for p in getfollowsposts(santa)]
+		self.assertSequenceEqual(ps, [])

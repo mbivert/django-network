@@ -7,6 +7,7 @@ from django.utils.decorators        import method_decorator
 from django.views                   import generic
 from django.http                    import JsonResponse, HttpResponseRedirect
 from .models                        import Post
+from .utils                         import trydeletepost
 from django.utils                   import timezone
 
 def signin(request):
@@ -66,13 +67,6 @@ class HomeView(generic.ListView):
 			"posts" : self.get_posts(),
 		}
 
-def trydeletepost(pk, uid):
-	p  = get_object_or_404(Post, pk=pk)
-	if p.owner.id == uid:
-		p.delete()
-		return True
-	return False
-
 @login_required(login_url='network:login')
 def delete(request, pk):
 	p  = get_object_or_404(Post, pk=pk)
@@ -92,7 +86,6 @@ def delete(request, pk):
 	# TODO: add err/msg as GET parameter & process (also, untested)
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
-
 @login_required(login_url='network:login')
 def edit(request, pk):
 	if request.method == 'POST':
@@ -102,5 +95,6 @@ def edit(request, pk):
 		p.mdate   = timezone.now()
 		p.save()
 
-	# XXX, now this one is really broken if there's no JS.
+	# XXX, now this one is really broken if there's no JS; we could
+	# redirect to a special edition page & wire things properly.
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))

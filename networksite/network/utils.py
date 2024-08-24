@@ -18,7 +18,11 @@ def maybecreatepost(name, owner, content):
 
 def trydeletepost(pk, uid):
 	p  = get_object_or_404(Post, pk=pk)
-	if p.owner.id == uid
+	if p.owner.id == uid:
 		p.delete()
 		return True
 	return False
+
+def getfollowsposts(user):
+	uids = [ u.id for u in user.follows.all() ]
+	return Post.objects.filter(owner__in=uids).order_by("-cdate")
