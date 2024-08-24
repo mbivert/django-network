@@ -3,6 +3,7 @@ from django.contrib.auth            import login
 from .forms                         import SigninForm, PostForm
 from django.conf                    import settings
 from django.contrib.auth.decorators import login_required
+from django.utils.decorators        import method_decorator
 from django.views                   import generic
 from .models                        import Post
 
@@ -34,8 +35,27 @@ class HomeView(generic.ListView):
 	template_name       = "network/posts.html"
 	context_object_name = "params"
 
+	@method_decorator(login_required)
+	def post(self, request):
+		form = PostForm(request.POST)
+		if form.is_valid():
+			# ...
+			post = form.save(commit=False)
+			post.owner = request.user
+			post.save()
+
+		return render(request, self.template_name, context={
+			"params" : {
+				"form"  : form,
+				"posts" : self.get_posts(),
+			}
+		})
+
+	def get_posts(self):
+		return Post.objects.order_by("-cdate")
+
 	def get_queryset(self):
 		return {
 			"form"  : PostForm(initial={'next' : self.request.path}, auto_id=False),
-			"posts" : Post.objects.order_by("-cdate"),
+			"posts" : self.get_posts(),
 		}
