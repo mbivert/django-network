@@ -2,11 +2,11 @@
 
 {% block content %}
 
-<form method="post" action="{% url 'network:login' %}">
+<form method="post" action="{% url 'network:login' %}" class="login-form">
 	{% csrf_token %}
-	{{ form.as_p }}
+	{{ form }}
 	<input type="hidden" name="next" value="{{ next }}">
-	<input type="submit" value="login">
+	<input type="submit" class="login-submit" value="login">
 </form>
 
 {% endblock %}
