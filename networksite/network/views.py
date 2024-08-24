@@ -15,7 +15,7 @@ def signin(request):
 			user = form.save()
 			login(request, user)
 
-			# Mimick LoginView's logic
+			# Mimic LoginView's logic
 			page = settings.LOGIN_REDIRECT_URL
 			if request.POST['next']:
 				page = request.POST['next']

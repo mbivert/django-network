@@ -1,11 +1,12 @@
-from django.contrib.auth.models     import AbstractBaseUser
-from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.db.models               import EmailField, CharField, BooleanField
-from django.utils.translation       import gettext_lazy as _
-from django.contrib.auth.models     import UserManager
-from django.contrib.auth.base_user  import BaseUserManager
 from django.apps                    import apps
+from django.contrib.auth.base_user  import BaseUserManager
 from django.contrib.auth.hashers    import make_password
+from django.contrib.auth.models     import UserManager, AbstractBaseUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.db                      import models
+from django.utils                   import timezone
+from django.utils.translation       import gettext_lazy as _
+from django.conf                    import settings
 
 class UserManager(BaseUserManager):
 	use_in_migrations = True
@@ -41,7 +42,7 @@ class User(AbstractBaseUser):
 
 	username_validator = UnicodeUsernameValidator()
 
-	username        = CharField(
+	username        = models.CharField(
 		_("username"),
 		max_length=150,
 		unique=True,
@@ -53,7 +54,7 @@ class User(AbstractBaseUser):
 			"unique": _("A user with that username already exists."),
 		},
 	)
-	email           = EmailField(_("email address"), blank=True)
+	email           = models.EmailField(_("email address"), blank=True)
 
 	USERNAME_FIELD  = "username"
 	EMAIL_FIELD     = "email"
@@ -64,3 +65,26 @@ class User(AbstractBaseUser):
 	class Meta:
 		verbose_name        = _("user")
 		verbose_name_plural = _("users")
+
+	# symmetrical=True (default), <=> systematic "follow-back"
+	follows = models.ManyToManyField("self", symmetrical=False, related_name="followers")
+
+class Post(models.Model):
+	owner   = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+	name    = models.CharField(max_length=120)
+	content = models.TextField()
+
+	# NOTE: if we use default=timezone.now, we'll get slightly two distinct
+	# dates on post creation, which is not what we want; so we override
+	# the blank in save() later
+	cdate   = models.DateTimeField("creation date",     blank=True)
+	mdate   = models.DateTimeField("modification date", blank=True)
+
+	likers  = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="likes")
+
+	def save(self, *args, **kwargs):
+		if not self.cdate:
+			d = timezone.now()
+			self.cdate = d
+			self.mdate = d
+		super().save(*args, **kwargs)
