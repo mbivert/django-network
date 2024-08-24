@@ -3,9 +3,10 @@
 {% block content %}
 
 {% if user.is_authenticated %}
-	<form action="/" method="POST" class="new-form">
+	<form action="{% url 'network:new' %}" method="POST" class="new-form">
 		{% csrf_token %}
 		{{ params.form }}
+		<input type="hidden" name="next" value="{{ request.path }}" />
 		<button type="submit" class="post-submit">Post</button>
 	</form>
 {% endif %}

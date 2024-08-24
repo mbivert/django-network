@@ -15,3 +15,10 @@ def maybecreatepost(name, owner, content):
 		p = Post(name=name, owner=owner, content=content)
 		p.save()
 	return p
+
+def trydeletepost(pk, uid):
+	p  = get_object_or_404(Post, pk=pk)
+	if p.owner.id == uid
+		p.delete()
+		return True
+	return False

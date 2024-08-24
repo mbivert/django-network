@@ -75,4 +75,56 @@
 		<p>hello, world!</p>
 	{% endblock %}
 	</body>
+	<script>window.addEventListener("load", function() {
+		// NOTE: For better or for worse, that's how it's supposed to
+		// be done; see https://docs.djangoproject.com/en/5.1/howto/csrf/
+		function getCookie(name) {
+			let cookieValue = null;
+			if (document.cookie && document.cookie !== '') {
+				const cookies = document.cookie.split(';');
+				for (let i = 0; i < cookies.length; i++) {
+					const cookie = cookies[i].trim();
+					// Does this cookie string begin with the name we want?
+					if (cookie.substring(0, name.length + 1) === (name + '=')) {
+						cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+						break;
+					}
+				}
+			}
+			return cookieValue;
+		}
+		const csrftoken = getCookie('csrftoken');
+
+		document.addEventListener("click", async function(e) {
+			let p = e.target;
+
+			if (p.classList.contains('delete-link')) {
+				e.preventDefault()
+				e.stopPropagation()
+				if (confirm("Are you sure you want to delete this post?")) {
+					let r = await fetch(p.href, {
+						method      : "POST",
+						headers     : {'X-CSRFToken': csrftoken},
+						credentials : "same-origin",
+					})
+					let err = "", msg = "";
+
+					if (!r.ok)
+						err = "request failed!"
+					else try {
+						let x = await r.json()
+						err = x.err; msg = x.msg;
+					} catch(y) { err = y }
+
+					if (err != "") {
+						alert(err);
+						return;
+					}
+					alert(msg);
+					p.closest(".post").remove()
+				}
+				return false
+			}
+		})
+	});</script>
 </html>

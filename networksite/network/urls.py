@@ -6,7 +6,12 @@ from .forms                    import LoginForm
 app_name = 'network'
 
 urlpatterns = [
-	path('',      views.HomeView.as_view(), name='home'),
+	path('',                 views.HomeView.as_view(), name='home'),
+
+	path('delete/<int:pk>/', views.delete,             name='delete'),
+#	path('new/',             views.new,                name='new'),
+	path('new/',             views.HomeView.as_view(), name='new'),
+
 	path('login/', LoginView.as_view(
 			template_name='network/login.html',
 			redirect_authenticated_user=True,
