@@ -69,6 +69,14 @@ class User(AbstractBaseUser):
 	# symmetrical=True (default), <=> systematic "follow-back"
 	follows = models.ManyToManyField("self", symmetrical=False, related_name="followers")
 
+	@property
+	def nfollows(self):
+		return len(self.follows.all())
+
+	@property
+	def nfollowers(self):
+		return len(self.followers.all())
+
 class Post(models.Model):
 	owner   = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 	name    = models.CharField(max_length=120)
@@ -81,6 +89,10 @@ class Post(models.Model):
 	mdate   = models.DateTimeField("modification date", blank=True)
 
 	likers  = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="likes")
+
+	@property
+	def nlikes(self):
+		return len(self.likers.all())
 
 	def save(self, *args, **kwargs):
 		if not self.cdate:

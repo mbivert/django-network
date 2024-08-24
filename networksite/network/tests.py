@@ -19,6 +19,14 @@ class FollowingTests(TestCase):
 		mb.save()
 		djengo.save()
 
+		self.assertEqual(mb.nfollows,     2)
+		self.assertEqual(djengo.nfollows, 1)
+		self.assertEqual(santa.nfollows,  0)
+
+		self.assertEqual(mb.nfollowers,     1)
+		self.assertEqual(djengo.nfollowers, 1)
+		self.assertEqual(santa.nfollowers,  1)
+
 		follows = [ u.username for u in mb.follows.all().order_by("username") ]
 		# Works as well
 #		follows = mb.follows.all().order_by("username").values_list("username", flat=True)
@@ -51,6 +59,9 @@ class LikingTests(TestCase):
 		p0.likers.add(mb)
 		santa.likes.add(p0)
 		mb.likes.add(p1)
+
+		self.assertEqual(p0.nlikes,  2)
+		self.assertEqual(p1.nlikes,  1)
 
 		likers = [ u.username for u in p0.likers.all().order_by("username") ]
 		self.assertSequenceEqual(likers, ["mb", "santa"])
