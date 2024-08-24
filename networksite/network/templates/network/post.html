@@ -16,4 +16,11 @@
 		{% endif %}
 	</div>
 	<pre class="content">{{ post.content }}</pre>
+	{% if user.is_authenticated %}
+		<a class="like-link" href="{% url 'network:like' post.id %}">
+			❤️
+		</a> <span name="nlikes">{{ post.nlikes }}</span>
+	{% else %}
+		❤️ {{ post.nlikes }}
+	{% endif %}
 </div>

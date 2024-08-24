@@ -145,20 +145,30 @@
 
 		}
 
+		async function handleLike(p) {
+			let r = await fetch(p.href, {
+				method      : "POST",
+				headers     : {'X-CSRFToken'  : csrftoken},
+				credentials : "same-origin",
+			})
+			if (!r.ok) alert("can't like!");
+			else r.text().then(function(n) {
+				p.nextElementSibling.textContent = n
+			})
+		}
+
 		document.addEventListener("click", function(e) {
 			let p = e.target;
 
-			if (p.classList.contains('delete-link')) {
+			let w = function(f) {
 				e.preventDefault();
 				e.stopPropagation();
-				handleDelete(p);
-				return false;
-			} else if (p.classList.contains('edit-link')) {
-				e.preventDefault();
-				e.stopPropagation();
-				handleEdit(p);
-				return false;
+				f(p);
 			}
+
+			if (p.classList.contains('delete-link')) w(handleDelete)
+			if (p.classList.contains('edit-link'))   w(handleEdit)
+			if (p.classList.contains('like-link'))   w(handleLike)
 		})
 	});</script>
 </html>

@@ -5,7 +5,7 @@ from django.conf                    import settings
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators        import method_decorator
 from django.views                   import generic
-from django.http                    import JsonResponse, HttpResponseRedirect
+from django.http                    import JsonResponse, HttpResponseRedirect, HttpResponse
 from .models                        import Post
 from .utils                         import trydeletepost
 from django.utils                   import timezone
@@ -97,4 +97,19 @@ def edit(request, pk):
 
 	# XXX, now this one is really broken if there's no JS; we could
 	# redirect to a special edition page & wire things properly.
+	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+
+@login_required(login_url='network:login')
+def like(request, pk):
+	p  = get_object_or_404(Post, pk=pk)
+
+	if p.likers.filter(pk=request.user.id):
+		p.likers.remove(request.user)
+	else:
+		p.likers.add(request.user)
+
+	if request.method == 'POST':
+		return HttpResponse(p.nlikes)
+
+	# Works without JS
 	return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
