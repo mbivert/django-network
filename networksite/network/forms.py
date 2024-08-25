@@ -3,10 +3,10 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .models                   import Post
 from django.forms              import ModelForm, Textarea
 
-# TODO: use a template for that form
 class SigninForm(UserCreationForm):
+	template_name = "network/form_signin.html"
 	class Meta(UserCreationForm.Meta):
-		model = get_user_model()
+		model  = get_user_model()
 		fields = ['username', 'email']
 
 class PostForm(ModelForm):

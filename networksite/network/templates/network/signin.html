@@ -4,9 +4,9 @@
 
 <form method="post" action="{% url 'network:signin' %}">
 	{% csrf_token %}
-	{{ form.as_p }}
+	{{ form }}
 	<input type="hidden" name="next" value="{{ next }}">
-	<input type="submit" value="sign-in">
+	<input type="submit" class="signin-submit" value="Signin">
 </form>
 
 {% endblock %}

@@ -1,6 +1,6 @@
 # Introduction
-More or less an implementation of [CS50][cs50]'s [Project 4][project4],
-that is, a 𝕏-like social network.
+Essentially an implementation of [CS50][cs50]'s [Project 4][project4],
+namely, a toy 𝕏-like social network.
 
 ![screenshot](https://github.com/mbivert/django-network/blob/master/screenshot.jpg?raw=true)
 
