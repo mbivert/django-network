@@ -23,15 +23,18 @@
 {% if user.is_authenticated %}
 	<form action="{% url 'network:new' %}" method="POST" class="new-form">
 		{% csrf_token %}
-		{{ params.form }}
+		{{ form }}
 		<input type="hidden" name="next" value="{{ request.path }}" />
 		<button type="submit" class="post-submit">Post</button>
 	</form>
 {% endif %}
-{% if params.posts %}
-	{% for post in params.posts %}
-		{% include "network/post.html" %}
-	{% endfor %}
-{% endif %}
+
+{% include "network/posts-pagination.html" %}
+
+{% for post in page_obj %}
+	{% include "network/post.html" %}
+{% endfor %}
+
+{% include "network/posts-pagination.html" %}
 
 {% endblock %}

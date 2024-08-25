@@ -36,9 +36,20 @@ def signout(request):
 
 class HomeView(generic.ListView):
 	template_name       = "network/posts.html"
-	context_object_name = "params"
+	paginate_by         = 5
+	model               = Post
 
-	def newpost(self, request):
+	def get_queryset(self):
+		return Post.objects.order_by("-cdate")
+
+	def get_context_data(self, *, object_list=None, **kwargs):
+		context          = super().get_context_data(**kwargs)
+		context['form']  = PostForm(initial={'next' : self.request.path}, auto_id=False)
+		context['posts'] = self.get_queryset()
+		return context
+
+	@method_decorator(login_required(login_url='network:login'))
+	def post(self, request):
 		form = PostForm(request.POST)
 		if form.is_valid():
 			# ...
@@ -47,28 +58,10 @@ class HomeView(generic.ListView):
 			post.save()
 			return HttpResponseRedirect(request.POST['next'])
 
-		return render(request, self.template_name, context={
-			"params" : {
-				"form"  : form,
-				"posts" : self.get_posts(),
-			}
-		})
-
-	@method_decorator(login_required(login_url='network:login'))
-	def post(self, request):
-		return self.newpost(request)
-
-	def get_posts(self):
-		return Post.objects.order_by("-cdate")
-
-	def get_queryset(self):
-		return {
-			"form"  : PostForm(initial={'next' : self.request.path}, auto_id=False),
-			"posts" : self.get_posts(),
-		}
+		return render(request, self.template_name, context=get_context_data())
 
 class FollowingView(HomeView):
-	def get_posts(self):
+	def get_queryset(self):
 		return getfollowingposts(self.request.user)
 
 class ProfileView(HomeView):
@@ -82,7 +75,7 @@ class ProfileView(HomeView):
 	def get_user(self):
 		return get_object_or_404(User, pk=self.kwargs["pk"])
 
-	def get_posts(self):
+	def get_queryset(self):
 		return Post.objects.filter(owner=self.kwargs["pk"]).order_by("-cdate")
 
 @login_required(login_url='network:login')
