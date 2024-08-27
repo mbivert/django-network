@@ -42,23 +42,40 @@ class HomeView(generic.ListView):
 	def get_queryset(self):
 		return Post.objects.order_by("-cdate")
 
-	def get_context_data(self, *, object_list=None, **kwargs):
+	def get_context_data(self, **kwargs):
 		context          = super().get_context_data(**kwargs)
-		context['form']  = PostForm(initial={'next' : self.request.path}, auto_id=False)
-		context['posts'] = self.get_queryset()
+		context['form']  = PostForm(auto_id=False)
 		return context
 
 	@method_decorator(login_required(login_url='network:login'))
-	def post(self, request):
+	def post(self, request, *args, **kwargs):
 		form = PostForm(request.POST)
 		if form.is_valid():
-			# ...
 			post = form.save(commit=False)
 			post.owner = request.user
 			post.save()
+			# NOTE: if we POST, then we lose the HTTP GET parameters, in
+			# particular the one used for pagination. POST['next'] still
+			# contains it, so the redirection is safe.
 			return HttpResponseRedirect(request.POST['next'])
 
-		return render(request, self.template_name, context=get_context_data())
+		# This error case shouldn't impact a regular user, as
+		# it requires handcrafted requests (HTML/JS would prevent).
+		#
+		# The current solution loses the error messages.
+		#
+		# Some of the solutions proposed here:
+		#	https://docs.djangoproject.com/en/5.1/topics/class-based-views/mixins/#a-better-solution
+		#
+		# Feel dreadfully sophisticated. Storing the forms's error in
+		# the request.session should be simpler, but perhaps somewhat
+		# cumbersome.
+#		return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+		return super().get(request, *args, **kwargs)
+		# 'HomeView' object has no attribute 'object_list': we're missing
+		# some wiring for get_context_data() to work, but could inject our
+		# form in the context.
+#		return render(request, self.template_name, context=self.get_context_data())
 
 class FollowingView(HomeView):
 	def get_queryset(self):

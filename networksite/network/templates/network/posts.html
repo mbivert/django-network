@@ -21,10 +21,11 @@
 {% endif %}
 
 {% if user.is_authenticated %}
-	<form action="{% url 'network:new' %}" method="POST" class="new-form">
+	<form action="{% url 'network:home' %}" method="POST" class="new-form">
 		{% csrf_token %}
 		{{ form }}
-		<input type="hidden" name="next" value="{{ request.path }}" />
+		{# maybe there's a better way to get /the/path?with=params #}
+		<input type="hidden" name="next" value="{{ request.path }}?{{ request.GET.urlencode }}" />
 		<button type="submit" class="post-submit">Post</button>
 	</form>
 {% endif %}

@@ -1,4 +1,5 @@
 from .models              import User, Post
+from django.shortcuts     import get_object_or_404
 
 def maybecreateuser(username, email, password):
 	try:

@@ -16,7 +16,7 @@ urlpatterns = [
 	path('delete/<int:pk>/', views.delete,             name='delete'),
 	path('edit/<int:pk>/',   views.edit,               name='edit'),
 	path('like/<int:pk>/',   views.like,               name='like'),
-	path('new/',             views.HomeView.as_view(), name='new'),
+#	path('new/',             views.HomeView.as_view(), name='new'),
 
 	path('login/', LoginView.as_view(
 			template_name='network/login.html',

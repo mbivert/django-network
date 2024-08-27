@@ -78,6 +78,7 @@
 			<a href="{% url 'network:home' %}">All posts</a>
 			{% if user.is_authenticated %}
 				<a href="{% url 'network:following' %}">Following</a>
+				<a href="{% url 'network:profile' user.pk %}">Profile</a>
 				<a href="{% url 'network:logout'    %}">Logout</a>
 				<a href="{% url 'network:signout'   %}">Sign-out</a>
 			{% else %}
